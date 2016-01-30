@@ -20,84 +20,63 @@ def to_radians(deg):
     return deg / 180.0 * math.pi
 
 def intensity(pixel):
-    return numpy.float32(pixel).sum(axis=0) / 3
+    return numpy.float32(pixel).sum() / pixel.size
 
 def bath(img, i, j, stripe=16):
-    oldj = j + (j % stripe) - stripe
     width = img.shape[1]
+    x = max(0, min(j + (j % stripe) - stripe, width - 1))
 
-    if oldj >= 0 and oldj < width:
-        return img[i][oldj]
-    else:
-        return img[i][j]
+    return img[i][x]
 
 def twist(img, i, j, spin=3.0, radius=4.0):
-    height = img.shape[0]
-    width = img.shape[1]
+    (height, width) = img.shape[:-1]
     R = math.sqrt((width ** 2 + height ** 2) / radius)
-    x = j - 0.5 * width;
-    y = i - 0.5 * height;
 
-    (r, p) = to_polar(x, y);
+    (r, p) = to_polar(j - 0.5 * width, i - 0.5 * height)
     (x, y) = to_rect(r, p + spin * r / R);
-  
-    x = x + 0.5 * width + 0.5;
-    y = y + 0.5 * height + 0.5;
 
-    if x >= 0 and y >= 0 and x < width and y < height:
-        return img[y][x]
+    x = max(0, min(x + 0.5 * width + 0.5, width - 1))
+    y = max(0, min(y + 0.5 * height + 0.5, height - 1))
 
-    return numpy.array([0, 0, 0])
+    return img[y][x]
 
 def fisheye(img, i, j):
-    height = img.shape[0]
-    width = img.shape[1]
-    R = math.sqrt((width ** 2 + height ** 2) / 4.0);
-    x = j - 0.5 * width;
-    y = i - 0.5 * height;
+    (height, width) = img.shape[:-1]
+    R = math.sqrt((width ** 2 + height ** 2) / 4.0)
 
-    (r, p) = to_polar(x, y);
+    (r, p) = to_polar(j - 0.5 * width, i - 0.5 * height);
     (x, y) = to_rect(1.5 * r * r / R, p);
   
-    x = x + 0.5 * width + 0.5;
-    y = y + 0.5 * height + 0.5;
+    x = max(0, min(x + 0.5 * width + 0.5, width - 1))
+    y = max(0, min(y + 0.5 * height + 0.5, height - 1))
 
-    if x >= 0 and y >= 0 and x < width and y < height:
-        return img[y][x]
-
-    return numpy.array([0, 0, 0])
+    return img[y][x]
 
 def spiralbath(img, i, j):
-    width = img.shape[1]
-    height = img.shape[0]
+    (height, width) = img.shape[:-1]
 
     x = j - 0.5 * width
     y = i - 0.5 * height
 
-    (r, p) = to_polar(x, y)
+    (r, p) = to_polar(j - 0.5 * width, i - 0.5 * height)
  
     x = x + 0.5 * width + 0.5
     y = y + 0.5 * height + 0.5
 
-    oldj = j + ((int)(to_degrees(p) + r / 4) % 64) - 16;
+    x = max(0, min(j + ((int)(to_degrees(p) + r / 4) % 64) - 16, width - 1))
 
-    if oldj >= 0 and oldj < width:
-        return img[i][oldj]
-
-    return img[i][j]
+    return img[i][x]
 
 def funhouse(img, i, j):
-    width = img.shape[1]
-    height = img.shape[0]
+    (height, width) = img.shape[:-1]
     C1 = 1.18
     C2 = 150
     C3 = 89
 
-    y = i + math.sin(to_radians(i * C1)) * C3;
-    x = j + math.sin(to_radians(j)) * C2;
+    y = max(0, min(i + math.sin(to_radians(i * C1)) * C3, height - 1))
+    x = max(0, min(j + math.sin(to_radians(float(j))) * C2, width - 1))
 
-    if x >= 0 and y >= 0 and x < width and y < height:
-        return img[y][x]
+    return img[y][x]
 
 def hippie(img, i, j):
     factor = 128 - (j - 128) ** 2 - (i - 128) ** 2
@@ -184,28 +163,56 @@ def caricature(img, i, j):
     x = x + 0.5 * width + 0.5
     y = y + 0.5 * height + 0.5
 
-    if x >= 0 and y >= 0 and x < width and y < height:
-        return img[y][x]
-    
-    return numpy.array([0, 0, 0])
+    x = max(0, min(x, width - 1))
+    y = max(0, min(y, height - 1))
 
-def transform(source_img, func, *args):
-    transformed_img = numpy.empty_like(source_img)
-    shape = source_img.shape
+    return img[y][x]
 
-    for i in range(shape[0]):
-        for j in range(shape[1]):
-            if func in [bentley, melt, oil]:
-                func(source_img, transformed_img, i, j, *args)
-            else:
-                transformed_img[i][j] = func(source_img, i, j, *args)
+def iconic(source_img, target_img, threshold=120, bsize=10):
+    src_shape = source_img.shape
+
+    icon_shape = ((src_shape[0] + bsize - 1) / bsize,
+                  (src_shape[1] + bsize - 1) / bsize)
+    icon = numpy.ndarray(shape=icon_shape)
+
+    for i in range(icon_shape[0]):
+        for j in range(icon_shape[1]):
+            iend = min((i + 1) * bsize, src_shape[0] - 1)
+            jend = min((j + 1) * bsize, src_shape[0] - 1)
+
+            block = source_img[i * bsize : iend, j * bsize : jend]
+            intensity = block.sum() / block.size
+
+            icon[i][j] = 255 if intensity > threshold else 0
+
+    for i in range(src_shape[0]):
+        for j in range(src_shape[1]):
+            y = min(i / bsize, src_shape[0] - 1)
+            x = min(j / bsize, src_shape[1] - 1)
+
+            v = icon[y][x]
+            target_img[i][j] = numpy.array([v, v, v])
+
+def transform(img, func, *args):
+    transformed_img = numpy.empty_like(img)
+    (height, width) = img.shape[0:-1]
+
+    if func in [iconic]:
+        func(img, transformed_img, *args)
+    else:
+        for i in range(height):
+            for j in range(width):
+                if func in [bentley, melt, oil]:
+                    func(img, transformed_img, i, j, *args)
+                else:
+                    transformed_img[i][j] = func(img, i, j, *args)
 
     return transformed_img
 
 if __name__ == '__main__':
     func_map = {
         bath: (24,),
-        twist: (6.0, 2.0),
+        twist: (3.0, 4.0),
         fisheye: None,
         spiralbath: None,
         funhouse: None,
@@ -215,16 +222,17 @@ if __name__ == '__main__':
         bentley: None,
         oil: None,
         melt: None,
+        iconic: (120, 8)
     }
-    func = bath
+    func = funhouse
 
-    source = cv2.imread('the_bride.jpg')
-    
+    source = cv2.imread('images/me.jpg')
+
     if func_map[func]:
         transformed = transform(source, func, *func_map[func])
     else:
         transformed = transform(source, func)
-        
+
     cv2.imshow('Source', source)
     cv2.imshow('Transformed', transformed)
     cv2.waitKey(0)
