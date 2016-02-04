@@ -19,6 +19,23 @@ def to_degrees(rad):
 def to_radians(deg):
     return deg / 180.0 * math.pi
 
+def lerp(v0, v1, t):
+    return v0 * (1.0 - t) + v1 * t
+
+def bilerp(img, y, x):
+    (height, width) = img.shape[:-1]
+    i = max(0.5, min(height - 1.5, float(y)))
+    j = max(0.5, min(width - 1.5, float(x)))
+    c0 = numpy.float32(img[i - 0.5][j - 0.5])
+    c1 = numpy.float32(img[i - 0.5][j + 0.5])
+    c2 = numpy.float32(img[i + 0.5][j - 0.5])
+    c3 = numpy.float32(img[i + 0.5][j + 0.5])
+
+    s = j + 0.5 - math.ceil(j - 0.5)
+    t = i + 0.5 - math.ceil(i - 0.5)
+
+    return numpy.uint8(lerp(lerp(c0, c1, s), lerp(c2, c3, s), t))
+
 def intensity(pixel):
     return numpy.float32(pixel).sum() / pixel.size
 
@@ -32,40 +49,40 @@ def twist(img, i, j, spin=3.0, radius=4.0):
     (height, width) = img.shape[:-1]
     R = math.sqrt((width ** 2 + height ** 2) / radius)
 
-    (r, p) = to_polar(j - 0.5 * width, i - 0.5 * height)
+    half_width = 0.5 * width
+    half_height = 0.5 * height
+
+    (r, p) = to_polar(j - half_width, i - half_height)
     (x, y) = to_rect(r, p + spin * r / R);
 
-    x = max(0, min(x + 0.5 * width + 0.5, width - 1))
-    y = max(0, min(y + 0.5 * height + 0.5, height - 1))
+    x = max(0.0, min(x + half_width, width - 1.0))
+    y = max(0.0, min(y + half_height, height - 1.0))
 
-    return img[y][x]
+    return bilerp(img, y, x)
 
 def fisheye(img, i, j):
     (height, width) = img.shape[:-1]
     R = math.sqrt((width ** 2 + height ** 2) / 4.0)
 
-    (r, p) = to_polar(j - 0.5 * width, i - 0.5 * height);
-    (x, y) = to_rect(1.5 * r * r / R, p);
-  
-    x = max(0, min(x + 0.5 * width + 0.5, width - 1))
-    y = max(0, min(y + 0.5 * height + 0.5, height - 1))
+    half_width = 0.5 * width
+    half_height = 0.5 * height
 
-    return img[y][x]
+    (r, p) = to_polar(j - half_width, i - half_height);
+    (x, y) = to_rect(1.5 * r ** 2 / R, p);
+  
+    x = max(0, min(x + half_width, width - 1))
+    y = max(0, min(y + half_height, height - 1))
+
+    return bilerp(img, y, x)
 
 def spiralbath(img, i, j):
     (height, width) = img.shape[:-1]
 
-    x = j - 0.5 * width
-    y = i - 0.5 * height
-
     (r, p) = to_polar(j - 0.5 * width, i - 0.5 * height)
- 
-    x = x + 0.5 * width + 0.5
-    y = y + 0.5 * height + 0.5
 
     x = max(0, min(j + ((int)(to_degrees(p) + r / 4) % 64) - 16, width - 1))
 
-    return img[i][x]
+    return bilerp(img, i, x)
 
 def funhouse(img, i, j):
     (height, width) = img.shape[:-1]
@@ -76,13 +93,13 @@ def funhouse(img, i, j):
     y = max(0, min(i + math.sin(to_radians(i * C1)) * C3, height - 1))
     x = max(0, min(j + math.sin(to_radians(float(j))) * C2, width - 1))
 
-    return img[y][x]
+    return bilerp(img, y, x)
 
 def hippie(img, i, j):
     factor = 128 - (j - 128) ** 2 - (i - 128) ** 2
     pixel = numpy.uint32(img[i][j])
 
-    return numpy.uint8(pixel ^ (pixel * factor) >> 25)
+    return numpy.uint8(pixel ^ (pixel * factor) >> 17)
 
 def indian(img, i, j):
     width = img.shape[1]
@@ -134,8 +151,6 @@ def oil(src_img, tar_img, i, j):
     height = src_img.shape[0]
     level = numpy.zeros(256)
     colors = numpy.array([[0, 0, 0] for w in range(256)])
-  
-    print (i, j)
 
     for y in range(i - 3, i + 4):
         for x in range(j - 3, j + 4):
@@ -153,23 +168,22 @@ def caricature(img, i, j):
     width = img.shape[1]
     height = img.shape[0]
 
-    R = math.sqrt(width ** 2 + height ** 2) / 2
-    x = j - 0.5 * width
-    y = i - 0.5 * height
+    half_width = 0.5 * width
+    half_height = 0.5 * height
 
-    (r, p) = to_polar(x, y)
+    R = math.sqrt(width ** 2 + height ** 2) / 2
+    (r, p) = to_polar(j - half_width, i - half_height)
     (x, y) = to_rect(0.5 * math.sqrt(r * R), p)
   
-    x = x + 0.5 * width + 0.5
-    y = y + 0.5 * height + 0.5
+    x = max(0, min(x + half_width, width - 1))
+    y = max(0, min(y + half_height, height - 1))
 
-    x = max(0, min(x, width - 1))
-    y = max(0, min(y, height - 1))
+    return bilerp(img, y, x)
 
-    return img[y][x]
-
-def iconic(source_img, target_img, threshold=120, bsize=10):
+def iconic(source_img, target_img, threshold=120, bsize=8):
     src_shape = source_img.shape
+
+    bsize = min(src_shape[:-1]) / 48
 
     icon_shape = ((src_shape[0] + bsize - 1) / bsize,
                   (src_shape[1] + bsize - 1) / bsize)
@@ -192,6 +206,21 @@ def iconic(source_img, target_img, threshold=120, bsize=10):
 
             v = icon[y][x]
             target_img[i][j] = numpy.array([v, v, v])
+
+def upsample(img, bi):
+    (height, width) = img.shape[0:-1]
+    upsampled = numpy.ndarray(dtype='uint8',
+                              shape=(height * 2, width * 2, 3))
+
+    for i in range(height * 2):
+        for j in range(width * 2):
+            if bi:
+                upsampled[i][j] = bilerp(img, (i + 0.5) / 2.0,
+                                         (j + 0.5) / 2.0)
+            else:
+                upsampled[i][j] = img[i / 2][j / 2]
+
+    return upsampled
 
 def transform(img, func, *args):
     transformed_img = numpy.empty_like(img)
@@ -224,7 +253,7 @@ if __name__ == '__main__':
         melt: None,
         iconic: (120, 8)
     }
-    func = funhouse
+    func = caricature
 
     source = cv2.imread('images/me.jpg')
 
