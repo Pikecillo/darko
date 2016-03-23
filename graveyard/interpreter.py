@@ -2,6 +2,8 @@ import cv2
 import numpy
 import re
 
+import shlex
+
 """
 Lexical analyzer
 """
@@ -63,6 +65,48 @@ class Lexer:
         else:
             return (Lexer.token_type[token.lastindex],
                     token.group(token.lastindex))
+
+"""
+Popi gramar rules as defined in Beyond Photography:
+
+trans -> 'new' '=' expr
+       | 'new' '[' index ']' '=' 'expr'
+       | expr
+
+expr -> term
+      | term '?' expr ':' expr
+
+term -> factor binaryop term
+
+binaryop -> '*' | '/' | '%' | '+' | '-' | '>'
+          | 'eq' | 'ge' | 'le' | 'ne' | '^'
+          | 'and' | 'or'
+
+factor -> '(' expr ')'
+        | '-' factor
+        | '!' factor
+        | 'old'
+        | fileref
+        | value
+        | 'x'
+        | 'y'
+        | 'r'
+        | 'a'
+        | factor '**' factor
+
+fileref -> fname
+         | fname '[' index ']'
+         | '$' value
+         | '$' value '[' index ']'
+
+value -> digit | digit value 
+
+index -> expr ',' expr
+
+digit -> '0' | '1' | '2' | '3' | '4'
+       | '5' | '6' | '7' | '8' | '9'
+
+"""
 
 class Parser:
 
@@ -136,16 +180,83 @@ class Parser:
         if filename and self.match(Lexer.End):
             self.interpreter.write_file(filename)
 
+    """
+    trans -> 'new' '=' expr
+           | 'new' '[' index ']' '=' 'expr'
+           | expr
+    """
     def parse_transformation(self):
-        lhs = 'new[y][x]'
+        token = self.lexer.next_token()
 
-        if self.match(Lexer.Assignment):
-            rhs = self.parse_rhs()
+        if token[1] == 'new':
+            token = self.lexer.next_token()
 
-            if rhs:
-                self.interpreter.transform(lhs, rhs)
-        else:
-            print "Error - invalid transformation"
+            if token[1] == '=':
+                self.parse_expression()
+            elif token[1] == '[':
+                self.parse_index()
+                token = self.lexer.next_token()
+                if token[1] == ']':
+                    token = self.lexer.next_token()
+                    if token[1] == '=':
+                        self.parse_expr()
+            else:
+                self.parse_expression()
+    """
+    expr -> term
+          | term '?' expr ':' expr
+    """
+    def parse_expression(self):
+       self.parse_term()
+
+       if self.lexer.has_next_token():
+           token = self.lexer.next_token()
+           if token[1] == '?':
+               self.parse_expression()
+               token = self.lexer.next_token()
+               if token[1] == ':':
+                   self.parse_expression()
+
+    """
+    term -> factor binaryop term
+    """
+    def parse_term(self):
+        self.parse_factor()
+        self.parse_binaryop()
+        self.parse_term()
+
+    """
+    binaryop -> '*' | '/' | '%' | '+' | '-' | '>'
+              | 'eq' | 'ge' | 'le' | 'ne' | '^'
+              | 'and' | 'or'
+    """
+    def parse_binary_op(self):
+        token = self.lexer.next_token()
+
+    """
+    factor -> '(' expr ')'
+            | '-' factor
+            | '!' factor
+            | 'old'
+            | 'x'
+            | 'y'
+            | 'r'
+            | 'a'
+            | 'pow' '(' factor ',' factor ')'
+            | '$' value
+            | value
+    """
+    def parse_factor(self):
+        token = self.lexer.next_token()
+
+        if token[1] == '(':
+            self.parse_expression()
+            token = self.lexer.next_token()
+        elif token[1] == '-':
+            self.parse_factor()
+        elif token[1] == '!':
+            self.parse_factor()
+        elif
 
     def parse_lhs(self):
         identifier = self.match(Lexer.Identifier)
@@ -177,13 +288,9 @@ class Interpreter:
     def write_file(self, filename):
         cv2.imwrite(filename, self.new)
 
-    def transform(self, lhs, rhs):
+    def transform(self, transformation):
         (Y, X) = self.old.shape[0:-1]
         Z = 255
-
-        statement = lhs + '=' + rhs
-
-        print statement
 
         for y in range(Y):
             for x in range(X):
@@ -197,7 +304,11 @@ class Interpreter:
                     "Z": Z
                 }
 
-                exec(statement, {}, locals)
+                exec(transformation, {}, locals)
+
+def test():
+    
+    pass
 
 if __name__ == '__main__':
     program = [
@@ -208,6 +319,7 @@ if __name__ == '__main__':
         'w \'img2.jpg\'',
         'q'
     ]
+
     command = 0
     interpreter = Interpreter()
 

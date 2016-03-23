@@ -5,6 +5,7 @@ import math
 import cmath
 import numpy
 import random
+import time
 
 def to_polar(x, y):
     return cmath.polar(complex(x, y))
@@ -19,9 +20,6 @@ def to_degrees(rad):
 def to_radians(deg):
     return deg / 180.0 * math.pi
 
-def lerp(v0, v1, t):
-    return v0 * (1.0 - t) + v1 * t
-
 def bilerp(img, y, x):
     (height, width) = img.shape[:-1]
     i = max(0.5, min(height - 1.5, float(y)))
@@ -34,7 +32,8 @@ def bilerp(img, y, x):
     s = j + 0.5 - math.ceil(j - 0.5)
     t = i + 0.5 - math.ceil(i - 0.5)
 
-    return numpy.uint8(lerp(lerp(c0, c1, s), lerp(c2, c3, s), t))
+    return numpy.int8((c0 * (1.0 - s) + c1 * s) * (1.0 - t) +
+                      (c2 * (1.0 - s) + c3 * s) * t)
 
 def intensity(pixel):
     return numpy.float32(pixel).sum() / pixel.size
@@ -180,10 +179,12 @@ def caricature(img, i, j):
 
     return bilerp(img, y, x)
 
-def iconic(source_img, target_img, threshold=120, bsize=8):
+def iconic(source_img, threshold=120, bsize=8):
     src_shape = source_img.shape
 
     bsize = min(src_shape[:-1]) / 48
+
+    target_img = numpy.ndarray(shape=src_shape, dtype='uint8')
 
     icon_shape = ((src_shape[0] + bsize - 1) / bsize,
                   (src_shape[1] + bsize - 1) / bsize)
@@ -206,6 +207,8 @@ def iconic(source_img, target_img, threshold=120, bsize=8):
 
             v = icon[y][x]
             target_img[i][j] = numpy.array([v, v, v])
+
+    return target_img
 
 def upsample(img, bi):
     (height, width) = img.shape[0:-1]
@@ -253,14 +256,25 @@ if __name__ == '__main__':
         melt: None,
         iconic: (120, 8)
     }
-    func = caricature
+    func = funhouse
 
     source = cv2.imread('images/me.jpg')
+
+    icon = iconic(source, 120, 8)
+
+    cv2.imwrite('icon.jpg', icon)
+    cv2.imshow('Icon', icon)
+
+    start = time.time()
 
     if func_map[func]:
         transformed = transform(source, func, *func_map[func])
     else:
         transformed = transform(source, func)
+
+    end = time.time()
+
+    print "Image transformed in %f sec" % (end - start)
 
     cv2.imshow('Source', source)
     cv2.imshow('Transformed', transformed)
