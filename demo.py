@@ -48,8 +48,8 @@ if __name__ == '__main__':
         't2000':
         'new[x, y] = old[rect(1.5 * r ** 2 / R + 10 * sin(rad(r) * 10), a)]',
         
-        'foo':
-        'new[x, y] = old[int(x / 10) * (X / 10), int(y / 10) * (Y / 10)]',
+        'pixel':
+        'new[x, y] = old[int(x / 20) * 20, int(y / 20) * 20]',
     }
 
     ddi = digidark.interpreter.Interpreter()

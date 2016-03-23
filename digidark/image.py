@@ -14,7 +14,7 @@ class Image:
         i = max(0, min(i, self.height - 1))
         j = max(0, min(j, self.width - 1))
 
-        if self.sampling == 'None':
+        if self.sampling == 'none':
             return self.pixels[i][j]
         else:
             return bilerp(self.pixels, i, j)
@@ -33,8 +33,8 @@ class Image:
     def write(self, filename):
         cv2.imwrite(filename, self.pixels)
 
-    def show(self, win_name, img_name):
-        cv2.imshow(win_name, img_name)
+    def show(self, win_name):
+        cv2.imshow(win_name, self.pixels)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 

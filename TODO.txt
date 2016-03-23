@@ -1,0 +1,5 @@
+-Add function for color tuple
+-Add tests
+-Optimize performance
+-Proper syntax error information
+-Proper distribution
