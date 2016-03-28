@@ -38,62 +38,6 @@ def bilerp(img, y, x):
 def intensity(pixel):
     return numpy.float32(pixel).sum() / pixel.size
 
-def bath(img, i, j, stripe=16):
-    width = img.shape[1]
-    x = max(0, min(j + (j % stripe) - stripe, width - 1))
-
-    return img[i][x]
-
-def twist(img, i, j, spin=3.0, radius=4.0):
-    (height, width) = img.shape[:-1]
-    R = math.sqrt((width ** 2 + height ** 2) / radius)
-
-    half_width = 0.5 * width
-    half_height = 0.5 * height
-
-    (r, p) = to_polar(j - half_width, i - half_height)
-    (x, y) = to_rect(r, p + spin * r / R);
-
-    x = max(0.0, min(x + half_width, width - 1.0))
-    y = max(0.0, min(y + half_height, height - 1.0))
-
-    return bilerp(img, y, x)
-
-def fisheye(img, i, j):
-    (height, width) = img.shape[:-1]
-    R = math.sqrt((width ** 2 + height ** 2) / 4.0)
-
-    half_width = 0.5 * width
-    half_height = 0.5 * height
-
-    (r, p) = to_polar(j - half_width, i - half_height);
-    (x, y) = to_rect(1.5 * r ** 2 / R, p);
-  
-    x = max(0, min(x + half_width, width - 1))
-    y = max(0, min(y + half_height, height - 1))
-
-    return bilerp(img, y, x)
-
-def spiralbath(img, i, j):
-    (height, width) = img.shape[:-1]
-
-    (r, p) = to_polar(j - 0.5 * width, i - 0.5 * height)
-
-    x = max(0, min(j + ((int)(to_degrees(p) + r / 4) % 64) - 16, width - 1))
-
-    return bilerp(img, i, x)
-
-def funhouse(img, i, j):
-    (height, width) = img.shape[:-1]
-    C1 = 1.18
-    C2 = 150
-    C3 = 89
-
-    y = max(0, min(i + math.sin(to_radians(i * C1)) * C3, height - 1))
-    x = max(0, min(j + math.sin(to_radians(float(j))) * C2, width - 1))
-
-    return bilerp(img, y, x)
-
 def hippie(img, i, j):
     factor = 128 - (j - 128) ** 2 - (i - 128) ** 2
     pixel = numpy.uint32(img[i][j])
@@ -116,14 +60,7 @@ def indian(img, i, j):
 
     return numpy.uint8(new_pixel)
 
-def bentley(src_img, tar_img, i, j):
-    height = src_img.shape[0]
 
-    pixel = src_img[i][j];
-    level = intensity(pixel);
-  
-    if(i + level / 4 < height):
-        tar_img[i + level / 4][j] = pixel
 
 def melt(src_img, tar_img, i, j):
     width = src_img.shape[1]
@@ -162,22 +99,6 @@ def oil(src_img, tar_img, i, j):
     pixel = src_img[i][j]
     max_level = level.max();
     tar_img[i][j] = colors[max_level]
-
-def caricature(img, i, j):
-    width = img.shape[1]
-    height = img.shape[0]
-
-    half_width = 0.5 * width
-    half_height = 0.5 * height
-
-    R = math.sqrt(width ** 2 + height ** 2) / 2
-    (r, p) = to_polar(j - half_width, i - half_height)
-    (x, y) = to_rect(0.5 * math.sqrt(r * R), p)
-  
-    x = max(0, min(x + half_width, width - 1))
-    y = max(0, min(y + half_height, height - 1))
-
-    return bilerp(img, y, x)
 
 def iconic(source_img, threshold=120, bsize=8):
     src_shape = source_img.shape

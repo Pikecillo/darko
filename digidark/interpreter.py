@@ -20,13 +20,13 @@ class Interpreter:
             'old': ddi.Image()
         }
 
-    def load(self, filename, imgname='old'):
-        img = ddi.Image()
+    def load(self, filename, imgname='old', sampling='none', scaling=1.0):
+        img = ddi.Image(sampling=sampling)
         img.read(filename)
 
-        self.symbol_table[imgname] = img 
+        self.symbol_table[imgname] = img.scale(scaling) 
 
-    def save(self, filename, imgname='old'):
+    def save(self, filename, imgname='new'):
         self.symbol_table[imgname].write(filename)
 
     def show(self, winname='digi-dark', imgname='new'):
