@@ -1,12 +1,11 @@
 # DigiDark
 
-**DigiDark** is an image editor inspired by *Popi* (Portable Pico), described
+**DigiDark** is an interpreter of image transformations inspired by *Popi* (Portable Pico), described
 in the classical book
 [Beyond Photography: The Digital Darkroom](http://spinroot.com/pico/)
 by Gerard J. Holzmann.
 
-DigiDark lets you apply arbitrary transformations on images. Have fun distorting
-pictures.
+Have fun distorting some pictures with one-liners.
 
 ## Example
 
@@ -56,7 +55,8 @@ rectangular coordinates is at the top-left corner of the image.
 ## Catalogue of Transformations
 
 Most of the following transformations were taken from Beyond Photography:
-The Digital Darkroom
+The Digital Darkroom. In the following no offense is meant to anyone (even
+politicians :P)
 
 ###  Twist
 	new[x, y] = old[rect(r, a - r / 50)]
