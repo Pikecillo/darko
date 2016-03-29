@@ -62,15 +62,17 @@ rectangular coordinates is at the top-left corner of the image.
 
 **cos(x)**: Cosine
 
+**sqrt(x)**: Square root
+
 **deg(x)**: Radians to degrees
 
 **rad(x)**: Degrees to radians 
 
 **avg(p)**: Gray level of pixel
 
-**ceil(x)**: Ceiling of x
+**ceil(x)**: Ceiling
 
-**floor(x)**: Floor of x
+**floor(x)**: Floor
 
 ## Catalogue of Transformations
 

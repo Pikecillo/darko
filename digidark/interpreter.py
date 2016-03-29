@@ -52,6 +52,8 @@ class Interpreter:
         self.symbol_table['cy'] = cy
         self.symbol_table['new'] = new
 
+        transf_code = compile(transf_src, '', 'exec')
+
         for x in range(width):
             for y in range(height):
                 (r, a) = ddm.polar(x - cx, y - cy)
@@ -67,6 +69,6 @@ class Interpreter:
                 
                 self.symbol_table['rect'] = shifted_rec
 
-                exec transf_src in self.symbol_table
+                exec transf_code in self.symbol_table
 
         return new
