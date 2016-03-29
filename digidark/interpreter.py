@@ -15,7 +15,10 @@ class Interpreter:
             'rad': ddm.rad,
             'avg': ddm.avg,
             'sqrt': math.sqrt,
+            'floor': math.floor,
+            'ceil': math.ceil,
             'sin': math.sin,
+            'cos': math.cos,
             'abs': abs,
             'old': ddi.Image()
         }

@@ -19,6 +19,10 @@ The following code rotates an image by 180 degrees
 	ddi.eval('new[x, y] = old[rect(r, a + rad(180))]')
 	ddi.save('images/upsidedown-foo.jpg')
 
+## Available operators
+
+The following operators can be used in transformations: +, -, *, /, **, %
+
 ## Predefined Variables
 
 Note: the origin of polar coordinates is at the center of the image. The origin of the
@@ -36,11 +40,17 @@ rectangular coordinates is at the top-left corner of the image.
 
 **a**: current pixel's angle (in radians) in polar coordinates
 
-**R**: Half-length of image diagonal
-
 **cx**: x of center of image rectangular coordinates
 
 **cy**: y of center of image rectangular coordinates
+
+**R**: Half-length of image diagonal
+
+**X**: Width of image
+
+**Y**: Height of image
+
+**Z**: Depth of image (255)
 
 ## Available functions
 
@@ -48,9 +58,19 @@ rectangular coordinates is at the top-left corner of the image.
 
 **polar(x, y) -> (r, a)**: Rectangular to polar coordinates
 
-**sin(x)**: Sine function
+**sin(x)**: Sine
+
+**cos(x)**: Cosine
+
+**deg(x)**: Radians to degrees
+
+**rad(x)**: Degrees to radians 
 
 **avg(p)**: Gray level of pixel
+
+**ceil(x)**: Ceiling of x
+
+**floor(x)**: Floor of x
 
 ## Catalogue of Transformations
 
@@ -119,7 +139,7 @@ politicians :P)
 ![Zuckerberg T2000](images/catalogue/zuckerberg-t2000.jpg "Zuckerberg T2000")
 
 ### Pixel
-	new[x, y] = old[int(x / 10) * 10, int(y / 10) * 10]
+	new[x, y] = old[floor(x / 10) * 10, floor(y / 10) * 10]
 ![Musk](images/catalogue/musk.jpg "Musk")
 ![Musk](images/catalogue/musk-pixel.jpg "Musk Pixel")
 

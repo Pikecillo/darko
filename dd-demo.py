@@ -34,7 +34,7 @@ if __name__ == '__main__':
         't2000':
         'new[x, y] = old[rect(1.5 * r ** 2 / R + 10 * sin(rad(r) * 10), a)]',
         'pixel':
-        'new[x, y] = old[int(x / 10) * 10, int(y / 10) * 10]',
+        'new[x, y] = old[floor(x / 10) * 10, floor(y / 10) * 10]',
     }
 
     pairs = [('twist', 'putin'), ('bath', 'merkel'),
