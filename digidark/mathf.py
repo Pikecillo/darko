@@ -1,6 +1,6 @@
 import cmath
 import math
-from numpy import float32, int8
+from numpy import float32, uint8
 
 """
 Convert from rectangular coordinates to polar
@@ -56,11 +56,11 @@ def bilerp(img, y, x):
     s = j + 0.5 - math.ceil(j - 0.5)
     t = i + 0.5 - math.ceil(i - 0.5)
 
-    return int8((c0 * (1.0 - s) + c1 * s) * (1.0 - t) +
-                (c2 * (1.0 - s) + c3 * s) * t)
+    return uint8((c0 * (1.0 - s) + c1 * s) * (1.0 - t) +
+                 (c2 * (1.0 - s) + c3 * s) * t)
 
 """
 Pixel average
 """
-def avg(pixel):
+def gray(pixel):
     return float32(pixel).sum() / pixel.size

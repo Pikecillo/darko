@@ -13,13 +13,15 @@ class Interpreter:
         self.symbol_table = {
             'deg': ddm.deg,
             'rad': ddm.rad,
-            'avg': ddm.avg,
             'sqrt': math.sqrt,
             'floor': math.floor,
             'ceil': math.ceil,
             'sin': math.sin,
             'cos': math.cos,
             'abs': abs,
+            'rgb': lambda r, g, b: numpy.array([b, g, r]),
+            'gray': ddm.gray,
+            'choice': lambda e, t, f: t if e else f,
             'old': ddi.Image()
         }
 

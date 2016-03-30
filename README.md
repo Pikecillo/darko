@@ -68,7 +68,11 @@ rectangular coordinates is at the top-left corner of the image.
 
 **rad(x)**: Degrees to radians 
 
-**avg(p)**: Gray level of pixel
+**gray(p)**: Gray level of pixel
+
+**rgb(r, g, b)**: Color tuple
+
+**choice(c, t, f)**: Return t if c evaluates to true, f otherwise
 
 **ceil(x)**: Ceiling
 
@@ -146,6 +150,6 @@ politicians :P)
 ![Musk](images/catalogue/musk-pixel.jpg "Musk Pixel")
 
 ###  Bentley
-	new[x, y - avg(old[x, y]) * 0.1] = old[x, y]
+	new[x, y - gray(old[x, y]) * 0.1] = old[x, y]
 ![Nadella](images/catalogue/nadella.jpg "Nadella")
 ![Nadella Bentley](images/catalogue/nadella-bentley.jpg "Nadella Bentley")
