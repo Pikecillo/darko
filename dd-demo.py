@@ -53,8 +53,7 @@ if __name__ == '__main__':
         oldfilename = pair[1] + '.jpg'
         newfilename = pair[1] + '-' + pair[0] + '.jpg'
 
-        ddi.load('images/catalogue/' + oldfilename, sampling='bilinear')
+        ddi.load('docs/images/catalogue/' + oldfilename, sampling='bilinear')
         ddi.eval(transf_src[pair[0]])
-        ddi.save('images/catalogue/' + oldfilename, 'old')
-        ddi.save('images/catalogue/' + newfilename, 'new')
-
+        ddi.save('docs/images/catalogue/' + oldfilename, 'old')
+        ddi.save('docs/images/catalogue/' + newfilename, 'new')
