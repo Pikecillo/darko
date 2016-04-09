@@ -37,6 +37,10 @@ class Interpreter:
     def show(self, winname='digi-dark', imgname='new'):
         self.symbol_table[imgname].show(winname)
 
+    def wait(self):
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
     def eval(self, transf_src):
         (height, width) = self.symbol_table['old'].shape()
 
@@ -71,6 +75,6 @@ class Interpreter:
                 
                 self.symbol_table['rect'] = shifted_rec
 
-                exec transf_code in self.symbol_table
+                eval(transf_code, {}, self.symbol_table)
 
         return new

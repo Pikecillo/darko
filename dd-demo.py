@@ -10,7 +10,7 @@ if __name__ == '__main__':
         'bath':
         'new[x, y] = old[x + (x % 32) - 16, y]',
         'bentley':
-        'new[x, y - avg(old[x, y]) * 0.1] = old[x, y]',
+        'new[x, y - gray(old[x, y]) * 0.1] = old[x, y]',
         'upright':
         'new[x, y] = old[rect(r, a + rad(180))]',
         'twist':
@@ -47,8 +47,9 @@ if __name__ == '__main__':
 
     ddi = digidark.interpreter.Interpreter()
 
-    for pair in pairs:
-        print pair[0] + ": " + transf_src[pair[0]]
+    for pair in pairs[0:2]:
+        print(pair[0] + ": " + transf_src[pair[0]])
+
         oldfilename = pair[1] + '.jpg'
         newfilename = pair[1] + '-' + pair[0] + '.jpg'
 
@@ -56,3 +57,4 @@ if __name__ == '__main__':
         ddi.eval(transf_src[pair[0]])
         ddi.save('images/catalogue/' + oldfilename, 'old')
         ddi.save('images/catalogue/' + newfilename, 'new')
+

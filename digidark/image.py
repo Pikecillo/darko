@@ -36,8 +36,6 @@ class Image:
 
     def show(self, win_name):
         cv2.imshow(win_name, self.pixels)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
 
     def shape(self):
         if self.pixels == None:
