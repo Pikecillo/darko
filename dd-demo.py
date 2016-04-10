@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     ddi = digidark.interpreter.Interpreter()
 
-    for pair in pairs[0:2]:
+    for pair in pairs:
         print(pair[0] + ": " + transf_src[pair[0]])
 
         oldfilename = pair[1] + '.jpg'

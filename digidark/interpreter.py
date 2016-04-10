@@ -2,6 +2,7 @@
 
 import digidark.image as ddi
 import digidark.mathf as ddm
+import digidark.parser as ddp
 
 import cv2
 import math
@@ -24,6 +25,7 @@ class Interpreter:
             'choice': lambda e, t, f: t if e else f,
             'old': ddi.Image()
         }
+        self.compiler = ddp.Compiler()
 
     def load(self, filename, imgname='old', sampling='none', scaling=1.0):
         img = ddi.Image(sampling=sampling)
@@ -58,7 +60,7 @@ class Interpreter:
         self.symbol_table['cy'] = cy
         self.symbol_table['new'] = new
 
-        transf_code = compile(transf_src, '', 'exec')
+        transf_code = self.compiler.compile(transf_src)
 
         for x in range(width):
             for y in range(height):

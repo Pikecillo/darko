@@ -1,44 +1,54 @@
 from simpleparse.parser import Parser
-from simpleparse.dispatchprocessor import *
+from simpleparse.dispatchprocessor import DispatchProcessor, dispatchList, getString
 
-# Popi grammar rules as defined in Beyond Photography
-popi_grammar = """
+grammar = """
 
-root := trans
+root := transformation
 
-trans := ( name, index, '=', expr )
-       / ( name, '=', expr )
-       / expr
+transformation := ( name, index, assign, expr )
 
-expr := ( term, '?', expr, ':', expr )
-      / ( term )
+assign := '='
+
+expr := ( trinary )
+        / ( term )
+
+trinary := ( term, '?', term, ':', term )
 
 term := ( factor, binaryop, term )
       / ( factor )
 
-binaryop := '*' / '/' / '%' / '+' / '-' / '>' / '=='
-          / '<=' / '>=' / '!=' / '^' / '&&' / '||'
+binaryop := '**' / '/' / '%' / '+' / '-' / '>' / '=='
+          / '<=' / '>=' / '!=' / '*' / '&&' / '||'
 
-factor := ( '(', expr, ')' )
-        / ( '-', factor )
-        / ( '!', factor )
+unaryop := '-' / '!'
+
+factor := ( opar, expr, cpar )
+        / ( unaryop, factor )
         / ( name, index )
-        / ( name, '(', expr, ')' )
+        / ( function )
         / ( name )
-        / ( fileref )
-        / ( value )
+        / ( number )
 
-fileref := ( '$', number, index )
-         / ( '$', number )
-         / ( name )
+function := ( name, opar, parameters, cpar )
 
-number := [1-9], [0-9]*
+parameters := ( expr, ',', parameters )
+            / ( expr )
+
+opar := '('
+
+cpar := ')'
 
 name := [_a-zA-Z], [_a-zA-Z0-9]*
 
-value := [0-9]+
+number := ( float )
+        / ( integer )
 
-index := '[', expr, ',', expr, ']'
+integer := [0-9]+
+
+float := ( integer, '.', integer )
+
+index := ( '[', expr, ',', expr, ']' )
+       / ( '[', function, ']' ) 
 
 """
 
@@ -75,84 +85,126 @@ def test_grammar():
                     ("", False) ]
     }
 
-    parser = Parser(popi_grammar)
+    cases2 = {
+        "transformation" : [ ('new[x,y]=avg(old[floor(x/10)* 10,floor(y/10)*10])>100?rgb(255, 255, 255):rgb(0, 0, 0)', True),
+        ('new[x, y] = Z - old[x, y]', True),
+        ('new[x, y] = old[X - x, y]', True),
+        ('new[x, y] = old[x + (x % 32) - 16, y]', True),
+        ('new[x, y - gray(old[x, y]) * 0.1] = old[x, y]', True),
+        ('new[x, y] = old[rect(r, a + rad(180))]', True),
+        ('new[x, y] = old[rect(r, a - r / 50)]', True),
+        ('new[x, y] = old[rect(1.5 * r ** 2 / R, a)]', True),
+        ('new[x, y] = old[rect(0.5 * sqrt(r * R), a)]', True),
+        ('new[x, y] = old[x + sin(rad(x)) * 150, y + sin(rad(y * 1.18)) * 89]', True),
+        ('new[x, y] = old[x, y + (deg(a) + r / 4) % 64 - 16]', True),
+        ('new[x, y] = old[x, y + 10 * sin(rad(y) * 10)]', True),
+        ('new[x, y] = old[x + 10 * sin(rad(y) * 5), y + 10 * sin(rad(x) * 5)]', True),
+        ('new[x, y] = old[x + 10 * sin(rad(y) * 10), y]', True),
+        ('new[x, y] = old[rect(r + 10 * sin(rad(r) * 10), a - r / 50)]', True),
+        ('new[x, y] = old[rect(1.5 * r ** 2 / R + 10 * sin(rad(r) * 10), a)]', True),
+        ('new[x, y] = old[floor(x / 10) * 10, floor(y / 10) * 10]', True)]
+    }
+
+    parser = Parser(grammar)
     
-    for production in cases.keys():
-        for case in cases[production]:
-            success, children, nextchar = parser.parse(
-                case[0], production=production)
-            if (success and nextchar == len(case[0])) == case[1]:
-                print "Test passed: ", production, case, nextchar
+    for production in cases2.keys():
+        for case in cases2[production]:
+            tsrc = case[0].replace(" ", "")
+            success, children, nextchar = parser.parse(tsrc, production=production)
+            if (success and nextchar == len(tsrc)) == case[1]:
+                print "Test passed: ", production, tsrc
             else:
-                print "Test failed: ", production, case, nextchar
+                print "Test failed: ", production, tsrc, nextchar
+                print tsrc
+                print " " * nextchar, '^'
 
-            print children
+class SyntaxTreeProcessor(DispatchProcessor):
 
-class PopiProcessor(DispatchProcessor):
-
-    def trans(self, info, buffer):
+    def transformation(self, info, buffer):
         (tag, left, right, children) = info
-        ret = dispatchList(self, children, buffer)
-        print tag, getString(info, buffer)
-        return ret[0]
+        res = dispatchList(self, children, buffer)
+        return " ".join(res)
+
+    def assign(self, info, buffer):
+        return getString(info, buffer)
 
     def expr(self, info, buffer):
         (tag, left, right, children) = info
+        res = dispatchList(self, children, buffer)
+        return " ".join(res)
+
+    def trinary(self, info, buffer):
+        (tag, left, right, children) = info
         ret = dispatchList(self, children, buffer)
-        print tag, getString(info, buffer)
-        return ret[0]
+        return "%s if %s else %s" % (ret[1], ret[0], ret[2])
 
     def term(self, info, buffer):
         (tag, left, right, children) = info
-        ret = dispatchList(self, children, buffer)
-        print tag, getString(info, buffer)
-        return ret[0]
+        res = dispatchList(self, children, buffer)
+        return " ".join(res)
 
     def binaryop(self, info, buffer):
         return getString(info, buffer)
 
     def factor(self, info, buffer):
         (tag, left, right, children) = info
-        ret = dispatchList(self, children, buffer)
-        print tag, getString(info, buffer)
-        return ret[0]
+        res = dispatchList(self, children, buffer)
+        return " ".join(res)
 
-    def fileref(self, info, buffer):
-        translated = tag + " "
+    def function(self, info, buffer):
+        (tag, left, right, children) = info
+        res = dispatchList(self, children, buffer)
+        return " ".join(res)
 
-        for child in children:
-            translated = translated + dispatch(self, child, buffer)
+    def parameters(self, info, buffer):
+        (tag, left, right, children) = info
+        res = dispatchList(self, children, buffer)
+        return ", ".join(res)
 
-        return translated
+    def opar(self, info, buffer):
+        return getString(info, buffer)
+
+    def cpar(self, info, buffer):
+        return getString(info, buffer)
 
     def number(self, info, buffer):
-        return getString(node_info, buffer)
+        (tag, left, right, children) = info
+        res = dispatchList(self, children, buffer)
+        return "".join(res)
+
+    def integer(self, info, buffer):
+        return getString(info, buffer)
+
+    def float(self, info, buffer):
+        (tag, left, right, children) = info
+        res = dispatchList(self, children, buffer)
+        return ".".join(res)
 
     def name(self, info, buffer):
         return getString(info, buffer)
 
     def value(self, info, buffer):
-        return getString(node_info, buffer)
+        return getString(info, buffer)
 
     def index(self, info, buffer):
-        res = multiMap(children, self, buffer)
+        (tag, left, right, children) = info
+        ret = dispatchList(self, children, buffer)
+        if len(ret) == 2:
+            return "[%s, %s]" % tuple(ret)
+        else:
+            return "[%s]" % tuple(ret)
 
-        print res
+class Compiler:
 
-        return '[' + res['expr'][0][0][0] + '][' + res['expr'][1][0][0] + ']'
+    def __init__(self):
+        self.parser = Parser(grammar)
+        self.translator = SyntaxTreeProcessor()
 
-command = "new=old[x+y,x]"
+    def compile(self, command):
+        cmd = command.replace(" ", "")
+        (success, children, nextchar) = self.parser.parse(cmd)
+        result = self.translator((success, children, nextchar), cmd)
+        python_src = result[1][0]
 
-print command
+        return compile(python_src, '', 'exec')
 
-popi_parser = Parser(popi_grammar)
-(success, children, nextchar) = popi_parser.parse(command)
-
-print children
-
-#popi_processor = PopiProcessor()
-#ret = popi_processor((success, children, nextchar), command)
-
-#print ret
-
-#test_grammar()

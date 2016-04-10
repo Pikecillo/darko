@@ -3,7 +3,7 @@
 Most of the following transformations were taken from
 [Beyond Photography: The Digital Darkroom](http://spinroot.com/pico/).
 In the following no offense is meant to anyone (not
-even to the politicians :P)
+even to the politicians)
 
 ###  Twist
 	new[x, y] = old[rect(r, a - r / 50)]
