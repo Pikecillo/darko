@@ -11,17 +11,73 @@ Have fun distorting some pictures with one-liners.
 
 Please report any bugs to: mario.rincon.nigro@gmail.com
 
-## Example
+## Example transformations
 
-The following code rotates an image by 180 degrees
+Let's apply some transformations on the following picture of Richard Feynman 
+(scientist/physics-professor/safe-cracker extraordinaire)
+
+![Feynman](docs/images/feynman.jpg)
+
+Getting DigiDark ready and loading the image
 
 	import digidark.interpreter
 	
+	# Create an interpreter
 	ddi = digidark.interpreter.Interpreter()
 	
-	ddi.load('images/foo.jpg', sampling='bilinear')
-	ddi.eval('new[x, y] = old[rect(r, a + rad(180))]')
-	ddi.save('images/upsidedown-foo.jpg')
+	# Load an image, and reads subpixels with bilinear interpolation
+	ddi.load('images/feynman.jpg', sampling='bilinear')
+
+Rotating the image by 45 degrees
+
+	# Apply the transformation
+	ddi.eval('new[x, y] = old[rect(r, a + rad(45))]')
+	# Save result to a file
+	ddi.save('images/feynman-rotated.jpg')
+
+![Feynman](docs/images/feynman-rotated.jpg)
+
+Zooming-in on the image
+
+	ddi.eval('new[x, y] = old[rect(r / 2, a)]')
+	ddi.save('images/feynman-zoomed.jpg')
+
+![Feynman](docs/images/feynman-zoomed.jpg)
+
+Mirroring and translating the image
+
+	ddi.eval('new[x, y] = old[abs(X / 2 - x), y]')
+	ddi.save('images/feynman-mirrored.jpg')
+
+![Feynman](docs/images/feynman-mirrored.jpg)
+
+Thresholding the image in 2-pixel blocks
+
+	ddi.eval('new[x, y] = gray(old[floor(x / 2) * 2,\
+			 floor(y / 2) * 2]) > 150 ?\
+			 rgb(255, 255, 255) : rgb(0, 0, 0)')
+	ddi.save('images/feynman-icon.jpg')
+
+![Feynman](docs/images/feynman-icon.jpg)
+
+A Warhol-like mosaic
+
+	ddi.eval('new[x, y] = old[x % (X / 2) * 2, y % (Y / 2) * 2] *\
+			 ((x < X / 2 ? (y < Y / 2 ? rgb(255, 0, 0) : \
+			 rgb(0, 255, 0)) : (y < Y / 2 ? rgb(255, 255, 0) :\
+			 rgb(0, 255, 255))) / Z)')
+	ddi.save('images/feynman-mosaic.jpg')
+
+![Feynman](docs/images/feynman-mosaic.jpg)
+
+A funky late 60s or early 70s look
+
+	ddi.eval('new[x, y] = 0.33 * ((gray(Z - old[x - 25, y]) / Z) * rgb(0, 0, 255)) +\
+			 0.33 * ((gray(Z - old[x, y]) / Z) * rgb(0, 255, 0)) +\
+			 0.33 * ((gray(Z - old[x + 25, y]) / Z) * rgb(255, 0, 0))')
+	ddi.save('images/feynman-lsd.jpg')
+
+![Feynman](docs/images/feynman-lsd.jpg)
 
 ## Predefined Variables
 
@@ -54,7 +110,15 @@ rectangular coordinates is at the top-left corner of the image.
 
 ## Available operators
 
-The following operators can be used in transformations: +, -, *, /, **, %
+The following operators can be used within expressions
+
+Arithmetic: +, -, *, /, **, %
+
+Comparison: <, >, ==, !=, <=, >=
+
+Logic: &&, ||
+
+Trinary: cond ? texpr : fexpr
 
 ## Available functions
 
@@ -76,12 +140,10 @@ The following operators can be used in transformations: +, -, *, /, **, %
 
 **rgb(r, g, b)**: Color tuple
 
-**choice(c, t, f)**: Return t if c evaluates to true, f otherwise
-
 **ceil(x)**: Ceiling
 
 **floor(x)**: Floor
 
 ## Catalogue of Transformations
 
-See the catalogue [here](docs/catalogue.md "Catalogue").
+See the catalogue of example transformations [here](docs/catalogue.md "Catalogue").

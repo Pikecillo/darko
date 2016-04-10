@@ -17,7 +17,7 @@ trinary := ( term, '?', term, ':', term )
 term := ( factor, binaryop, term )
       / ( factor )
 
-binaryop := '**' / '/' / '%' / '+' / '-' / '>' / '=='
+binaryop := '**' / '/' / '%' / '+' / '-' / '>' / '<' / '=='
           / '<=' / '>=' / '!=' / '*' / '&&' / '||'
 
 unaryop := '-' / '!'
