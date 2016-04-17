@@ -67,9 +67,9 @@ A Warhol-like mosaic
   	transformation = """
 	    new[x, y] =
     	        old[x % (X / 2) * 2, y % (Y / 2) * 2] *
-        	    ((x < X / 2 ?
-            	        (y < Y / 2 ? rgb(255, 0, 0) : rgb(0, 255, 0)) :
-            		(y < Y / 2 ? rgb(255, 255, 0) : rgb(0, 255, 255))) / Z)
+                    ((x < X / 2 ?
+                     (y < Y / 2 ? rgb(255, 0, 0) : rgb(0, 255, 0)) :
+                     (y < Y / 2 ? rgb(255, 255, 0) : rgb(0, 255, 255))) / Z)
 	"""
 	ddi.eval(transformation)
 	ddi.save('feynman-mosaic.jpg')
@@ -80,9 +80,9 @@ A funky late 60s or early 70s look
 
 	transformation = """
 	    new[x, y] =
-    	        0.33 * ((gray(Z - old[x - 25, y]) / Z) * rgb(0, 0, 255)) +
-    		0.33 * ((gray(Z - old[x, y]) / Z) * rgb(0, 255, 0)) +
-    		0.33 * ((gray(Z - old[x + 25, y]) / Z) * rgb(255, 0, 0))
+	        0.33 * ((gray(Z - old[x - 25, y]) / Z) * rgb(0, 0, 255)) +
+    	        0.33 * ((gray(Z - old[x, y]) / Z) * rgb(0, 255, 0)) +
+    	        0.33 * ((gray(Z - old[x + 25, y]) / Z) * rgb(255, 0, 0))
 	"""
 	ddi.eval(transformation)
 	ddi.save('docs/images/feynman-lsd.jpg')
