@@ -5,7 +5,7 @@ in the classical book
 [Beyond Photography: The Digital Darkroom](http://spinroot.com/pico/)
 by Gerard J. Holzmann.
 
-**DigiDark** is written in Python. To run it you need to install [numpy](http://www.scipy.org/scipylib/download.html) and [OpenCV](opencv.org/downloads.html)  
+**DigiDark** is written in Python. To run it you need to install [numpy](http://www.scipy.org/scipylib/download.html) and [OpenCV](opencv.org/downloads.html). Python 3 is not supported yet.
 
 Have fun distorting some pictures with one-liners.
 
