@@ -1,7 +1,8 @@
 from digidark.mathf import bilerp
 
 import cv2
-import numpy
+import numpy as np
+import math
 
 class Image:
 
@@ -10,22 +11,41 @@ class Image:
         self.sampling = sampling
         (self.height, self.width) = self.shape()
 
+    """
+    pidx: pixel coordinate (x, y)
+    """
     def __getitem__(self, pidx):
-        (j, i) = pidx
-        i = max(0, min(i, self.height - 1))
-        j = max(0, min(j, self.width - 1))
+        (x, y) = pidx
 
         if self.sampling == 'none':
-            return self.pixels[i][j]
+            x = max(0, min(x, self.width - 1))
+            y = max(0, min(y, self.height - 1))
+            return self.pixels[y][x]
         else:
-            return bilerp(self.pixels, i, j)
+            return self.bilerp_sampling(x, y)
 
     def __setitem__(self, pidx, pval):
-        (j, i) = pidx
-        i = max(0, min(i, self.height - 1))
-        j = max(0, min(j, self.width - 1))
+        (x, y) = pidx
+        x = max(0, min(x, self.width - 1))
+        y = max(0, min(y, self.height - 1))
 
-        self.pixels[i][j] = pval
+        self.pixels[y][x] = pval
+
+    def bilerp_sampling(self, x, y):
+        i0 = int(max(0, min(self.height - 1, y)))
+        j0 = int(max(0, min(self.width - 1, x)))
+        i1 = int(max(0, min(self.height - 1, y + 1)))
+        j1 = int(max(0, min(self.width - 1, x + 1)))
+
+        c0 = np.float32(self.pixels[i0][j0])
+        c1 = np.float32(self.pixels[i0][j1])
+        c2 = np.float32(self.pixels[i1][j0])
+        c3 = np.float32(self.pixels[i1][j1])
+
+        s = x - math.floor(x)
+        t = y - math.floor(y)
+
+        return np.uint8(bilerp(c0, c1, c2, c3, s, t))
 
     def read(self, filename):
         self.pixels = cv2.imread(filename)
@@ -43,23 +63,21 @@ class Image:
 
         return self.pixels.shape[0:-1]
 
-    def resize(self, height, width):
-        resized = numpy.ndarray(dtype='uint8', shape=(height, width, 3))
+    def resized(self, height, width, sampling='none'):
+        resized = np.ndarray(dtype='uint8', shape=(height, width, 3))
 
-        sy = self.height / height
-        sx = self.width / width
+        sy = float(self.height / height)
+        sx = float(self.width / width)
 
         for i in range(height):
             for j in range(width):
                 if self.sampling == 'none':
                     resized[i][j] = self.pixels[i * sy][j * sx]
                 else:
-                    resized[i][j] = bilerp(self.pixels,
-                                           (i + 0.5) * sy, (j + 0.5) * sx)
+                    resized[i][j] = self.bilerp_sampling(j * sx, i * sy)
 
         return Image(resized, self.sampling)
 
-    def scale(self, factor):
-        return self.resize(int(self.height * factor),
-                           int(self.width * factor))
-
+    def scaled(self, factor):
+        return self.resized(int(self.height * factor),
+                            int(self.width * factor))

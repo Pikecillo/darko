@@ -31,7 +31,7 @@ class Interpreter:
         img = ddi.Image(sampling=sampling)
         img.read(filename)
 
-        self.symbol_table[imgname] = img.scale(scaling) 
+        self.symbol_table[imgname] = img.scaled(scaling) 
 
     def save(self, filename, imgname='new'):
         self.symbol_table[imgname].write(filename)

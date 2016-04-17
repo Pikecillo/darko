@@ -1,6 +1,6 @@
 import cmath
 import math
-from numpy import float32, uint8
+from numpy import float32
 
 """
 Convert from rectangular coordinates to polar
@@ -42,22 +42,16 @@ def rad(degs):
     return degs / 180.0 * math.pi
 
 """
+Linear interpolation
+"""
+def lerp(v0, v1, t):
+    return v0 * (1 - t) + v1 * t
+
+"""
 Bilinear interpolation
 """
-def bilerp(img, y, x):
-    (height, width) = img.shape[:-1]
-    i = max(0.5, min(height - 1.5, float(y)))
-    j = max(0.5, min(width - 1.5, float(x)))
-    c0 = float32(img[i - 0.5][j - 0.5])
-    c1 = float32(img[i - 0.5][j + 0.5])
-    c2 = float32(img[i + 0.5][j - 0.5])
-    c3 = float32(img[i + 0.5][j + 0.5])
-
-    s = j + 0.5 - math.ceil(j - 0.5)
-    t = i + 0.5 - math.ceil(i - 0.5)
-
-    return uint8((c0 * (1.0 - s) + c1 * s) * (1.0 - t) +
-                 (c2 * (1.0 - s) + c3 * s) * t)
+def bilerp(v0, v1, v2, v3, s, t):
+    return lerp(lerp(v0, v1, s), lerp(v2, v3, s), t)
 
 """
 Pixel average
