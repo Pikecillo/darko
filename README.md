@@ -26,56 +26,66 @@ Getting DigiDark ready and loading the image
 	ddi = digidark.interpreter.Interpreter()
 	
 	# Load an image, and reads subpixels with bilinear interpolation
-	ddi.load('images/feynman.jpg', sampling='bilinear')
+	ddi.load('feynman.jpg', sampling='bilinear')
 
 Rotating the image by 45 degrees
 
 	# Apply the transformation
 	ddi.eval('new[x, y] = old[rect(r, a + rad(45))]')
 	# Save result to a file
-	ddi.save('images/feynman-rotated.jpg')
+	ddi.save('feynman-rotated.jpg')
 
 ![Feynman](docs/images/feynman-rotated.jpg)
 
 Zooming-in on the image
 
 	ddi.eval('new[x, y] = old[rect(r / 2, a)]')
-	ddi.save('images/feynman-zoomed.jpg')
+	ddi.save('feynman-zoomed.jpg')
 
 ![Feynman](docs/images/feynman-zoomed.jpg)
 
 Mirroring and translating the image
 
 	ddi.eval('new[x, y] = old[abs(X / 2 - x), y]')
-	ddi.save('images/feynman-mirrored.jpg')
+	ddi.save('feynman-mirrored.jpg')
 
 ![Feynman](docs/images/feynman-mirrored.jpg)
 
 Thresholding the image in 2-pixel blocks
 
-	ddi.eval('new[x, y] = gray(old[floor(x / 2) * 2,\
-			 floor(y / 2) * 2]) > 150 ?\
-			 rgb(255, 255, 255) : rgb(0, 0, 0)')
-	ddi.save('images/feynman-icon.jpg')
+	transformation = """
+	    new[x, y] = gray(old[floor(x / 2) * 2, floor(y / 2) * 2]) > 150 ?
+    	    rgb(255, 255, 255) : rgb(0, 0, 0)
+	"""
+	ddi.eval(transformation)
+	ddi.save('feynman-icon.jpg')
 
 ![Feynman](docs/images/feynman-icon.jpg)
 
 A Warhol-like mosaic
 
-	ddi.eval('new[x, y] = old[x % (X / 2) * 2, y % (Y / 2) * 2] *\
-			 ((x < X / 2 ? (y < Y / 2 ? rgb(255, 0, 0) : \
-			 rgb(0, 255, 0)) : (y < Y / 2 ? rgb(255, 255, 0) :\
-			 rgb(0, 255, 255))) / Z)')
-	ddi.save('images/feynman-mosaic.jpg')
+  	transformation = """
+	    new[x, y] =
+    	        old[x % (X / 2) * 2, y % (Y / 2) * 2] *
+        	    ((x < X / 2 ?
+            	        (y < Y / 2 ? rgb(255, 0, 0) : rgb(0, 255, 0)) :
+            		(y < Y / 2 ? rgb(255, 255, 0) : rgb(0, 255, 255))) / Z)
+	"""
+	ddi.eval(transformation)
+	ddi.save('feynman-mosaic.jpg')
 
 ![Feynman](docs/images/feynman-mosaic.jpg)
 
 A funky late 60s or early 70s look
 
-	ddi.eval('new[x, y] = 0.33 * ((gray(Z - old[x - 25, y]) / Z) * rgb(0, 0, 255)) +\
-			 0.33 * ((gray(Z - old[x, y]) / Z) * rgb(0, 255, 0)) +\
-			 0.33 * ((gray(Z - old[x + 25, y]) / Z) * rgb(255, 0, 0))')
-	ddi.save('images/feynman-lsd.jpg')
+	transformation = """
+	    new[x, y] =
+    	        0.33 * ((gray(Z - old[x - 25, y]) / Z) * rgb(0, 0, 255)) +
+    		0.33 * ((gray(Z - old[x, y]) / Z) * rgb(0, 255, 0)) +
+    		0.33 * ((gray(Z - old[x + 25, y]) / Z) * rgb(255, 0, 0))
+	"""
+	ddi.eval(transformation)
+	ddi.save('docs/images/feynman-lsd.jpg')
 
 ![Feynman](docs/images/feynman-lsd.jpg)
 

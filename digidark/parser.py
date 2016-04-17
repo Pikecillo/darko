@@ -1,8 +1,9 @@
+import re
+
 from simpleparse.parser import Parser
 from simpleparse.dispatchprocessor import *
 
 grammar = """
-
 root := transformation
 
 transformation := ( name, index, assign, expr )
@@ -49,7 +50,6 @@ float := ( integer, '.', integer )
 
 index := ( '[', expr, ',', expr, ']' )
        / ( '[', function, ']' ) 
-
 """
 
 class SyntaxTreeProcessor(DispatchProcessor):
@@ -135,7 +135,8 @@ class Compiler:
         self.translator = SyntaxTreeProcessor()
 
     def compile(self, command):
-        cmd = command.replace(" ", "")
+        cmd = re.sub('\s', '', command)
+
         (success, children, nextchar) = self.parser.parse(cmd)
         result = self.translator((success, children, nextchar), cmd)
         python_src = result[1][0]
