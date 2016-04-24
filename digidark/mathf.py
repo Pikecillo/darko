@@ -45,13 +45,15 @@ def rad(degs):
 Linear interpolation
 """
 def lerp(v0, v1, t):
-    return v0 * (1 - t) + v1 * t
+    return v0 + (v1 - v0) * t
 
 """
 Bilinear interpolation
 """
 def bilerp(v0, v1, v2, v3, s, t):
-    return lerp(lerp(v0, v1, s), lerp(v2, v3, s), t)
+    a = v0 + (v1 - v0) * s
+    b = v2 + (v3 - v0) * s
+    return a + (b - a) * t
 
 """
 Pixel average
