@@ -52,7 +52,7 @@ Bilinear interpolation
 """
 def bilerp(v0, v1, v2, v3, s, t):
     a = v0 + (v1 - v0) * s
-    b = v2 + (v3 - v0) * s
+    b = v2 + (v3 - v2) * s
     return a + (b - a) * t
 
 """

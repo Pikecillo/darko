@@ -55,5 +55,4 @@ if __name__ == '__main__':
 
         ddi.load('docs/images/catalogue/' + oldfilename, sampling='bilinear')
         ddi.eval(transf_src[pair[0]])
-        ddi.save('docs/images/catalogue/' + oldfilename, 'old')
         ddi.save('docs/images/catalogue/' + newfilename, 'new')
