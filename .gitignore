@@ -1,4 +1,4 @@
 *.pyc
 darko/*.pyc
 tests/*.pyc
-
+*.jpg

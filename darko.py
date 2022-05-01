@@ -48,9 +48,8 @@ if __name__ == '__main__':
     darko_interpreter = darko.interpreter.Interpreter()
 
     for pair in pairs:
-        pathname = './'
-        oldfilename = pathname + pair[1] + '.jpg'
-        newfilename = pathname + pair[1] + '-' + pair[0] + '.jpg'
+        oldfilename = "docs/images/catalogue/" + pair[1] + '.jpg'
+        newfilename = "./" + pair[1] + '-' + pair[0] + '.jpg'
 
         print(pair[0] + ": " + transf_src[pair[0]] + " -> " + newfilename)
 

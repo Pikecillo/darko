@@ -63,7 +63,7 @@ class Image:
 
         return self.pixels.shape[0:-1]
 
-    def resized(self, height, width, sampling='none'):
+    def resized(self, height, width, sampling):
         resized = np.ndarray(dtype='uint8', shape=(height, width, 3))
 
         sy = float(self.height / height)
@@ -80,4 +80,4 @@ class Image:
 
     def scaled(self, factor):
         return self.resized(int(self.height * factor),
-                            int(self.width * factor))
+                            int(self.width * factor), self.sampling)
