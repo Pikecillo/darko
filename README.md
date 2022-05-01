@@ -37,42 +37,42 @@ $ python darko.py
 python -m pytest tests
 ```
 
-## A Tutorial of Sorts
+## A Tutorial
 
 Let's apply some transformations on the following picture of scientist/physics-professor/safe-cracker/bongos-player/nobel-laureate extraordinaire [Richard Feynman](https://en.wikipedia.org/wiki/Richard_Feynman).
 
 ![Feynman](docs/images/feynman.jpg)
 
-Getting darko ready and loading the image
+Let's load the darko interpreter and an image, and let's operate on it using bilinear sampling
 
 	import darko.interpreter
 	
 	# Create an interpreter
-	ddi = darko.interpreter.Interpreter()
+	darko_interpreter = darko.interpreter.Interpreter()
 	
 	# Load an image, and reads subpixels with bilinear interpolation
-	ddi.load('feynman.jpg', sampling='bilinear')
+	darko_interpreter.load('feynman.jpg', sampling='bilinear')
 
-Rotating the image by 45 degrees
+Not let's rotate the image by 45 degrees
 
 	# Apply the transformation
-	ddi.eval('new[x, y] = old[rect(r, a + rad(45))]')
+	darko_interpreter.eval('new[x, y] = old[rect(r, a + rad(45))]')
 	# Save result to a file
-	ddi.save('feynman-rotated.jpg')
+	darko_interpreter.save('feynman-rotated.jpg')
 
 ![Feynman](docs/images/feynman-rotated.jpg)
 
 Zooming-in on the image
 
-	ddi.eval('new[x, y] = old[rect(r / 2, a)]')
-	ddi.save('feynman-zoomed.jpg')
+	darko_interpreter.eval('new[x, y] = old[rect(r / 2, a)]')
+	darko_interpreter.save('feynman-zoomed.jpg')
 
 ![Feynman](docs/images/feynman-zoomed.jpg)
 
 Mirroring and translating the image
 
-	ddi.eval('new[x, y] = old[abs(X / 2 - x), y]')
-	ddi.save('feynman-mirrored.jpg')
+	darko_interpreter.eval('new[x, y] = old[abs(X / 2 - x), y]')
+	darko_interpreter.save('feynman-mirrored.jpg')
 
 ![Feynman](docs/images/feynman-mirrored.jpg)
 
@@ -82,8 +82,8 @@ Thresholding the image in 2-pixel blocks
 	    new[x, y] = gray(old[floor(x / 2) * 2, floor(y / 2) * 2]) > 150 ?
     	    rgb(255, 255, 255) : rgb(0, 0, 0)
 	"""
-	ddi.eval(transformation)
-	ddi.save('feynman-icon.jpg')
+	darko_interpreter.eval(transformation)
+	darko_interpreter.save('feynman-icon.jpg')
 
 ![Feynman](docs/images/feynman-icon.jpg)
 
@@ -96,8 +96,8 @@ A Warhol-like mosaic
                      (y < Y / 2 ? rgb(255, 0, 0) : rgb(0, 255, 0)) :
                      (y < Y / 2 ? rgb(255, 255, 0) : rgb(0, 255, 255))) / Z)
 	"""
-	ddi.eval(transformation)
-	ddi.save('feynman-mosaic.jpg')
+	darko_interpreter.eval(transformation)
+	darko_interpreter.save('feynman-mosaic.jpg')
 
 ![Feynman](docs/images/feynman-mosaic.jpg)
 
@@ -109,15 +109,18 @@ A funky late 60s or early 70s look
     	        0.33 * ((gray(Z - old[x, y]) / Z) * rgb(0, 255, 0)) +
     	        0.33 * ((gray(Z - old[x + 25, y]) / Z) * rgb(255, 0, 0))
 	"""
-	ddi.eval(transformation)
-	ddi.save('docs/images/feynman-lsd.jpg')
+	darko_interpreter.eval(transformation)
+	darko_interpreter.save('feynman-lsd.jpg')
 
 ![Feynman](docs/images/feynman-lsd.jpg)
 
-## Predefined Variables
+### Keywords
 
-Note: the origin of polar coordinates is at the center of the image. The origin of the
-rectangular coordinates is at the top-left corner of the image.
+You can use either polar coordinates or rectangular coordinates in your transformations. The origin of the
+rectangular coordinates is at the top-left corner of the image, and the origin of the polar coordinates is
+in the center of the image.
+
+The following keywords can be used in transformations:
 
 **old**: original image
 
@@ -143,7 +146,7 @@ rectangular coordinates is at the top-left corner of the image.
 
 **Z**: Depth of image (255)
 
-## Available operators
+### Operators
 
 The following operators can be used within expressions
 
@@ -155,7 +158,7 @@ Logic: &&, ||
 
 Trinary: cond ? texpr : fexpr
 
-## Available functions
+### Functions
 
 **rect(r, a) -> (x, y)**: Polar to rectangular coordinates
 
