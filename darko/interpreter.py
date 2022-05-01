@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-import digidark.image as ddi
-import digidark.mathf as ddm
-import digidark.parser as ddp
+import darko.image as ddi
+import darko.mathf as ddm
+import darko.parser as ddp
 
 import cv2
 import math

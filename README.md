@@ -1,29 +1,54 @@
-# DigiDark
+# Darko
 
-**DigiDark** is an interpreter of image transformations inspired by *Popi* (Portable Pico), described
+**Darko** is an interpreter of image transformations inspired by *Popi* (Portable Pico), described
 in the classical book
-[Beyond Photography: The Digital Darkroom](http://spinroot.com/pico/)
-by Gerard J. Holzmann.
+[Beyond Photography: The Digital Darkroom](http://spinroot.com/pico/) by 
+[Gerard J. Holzmann](https://en.wikipedia.org/wiki/Gerard_J._Holzmann).
 
-**DigiDark** is written in Python. To run it you need to install [numpy](http://www.scipy.org/scipylib/download.html) and [OpenCV](opencv.org/downloads.html). Python 3 is not supported yet.
+Have fun distorting some pictures with one-liners, and feel free to contribute to this project.
 
-Have fun distorting some pictures with one-liners.
+## Content
 
-Please report any bugs to: mario.rincon.nigro@gmail.com
+- [How to Run It](#to-use)
+- [A Tutorial of Sorts](#a-tutorial-of-sorts) 
+- [A Catalogue of Transformations](#a-catalogue-of-transformations) 
 
-## Example transformations
+## How to Run It?
 
-Let's apply some transformations on the following picture of Richard Feynman 
-(scientist/physics-professor/safe-cracker extraordinaire)
+**Darko** is written in Python. To run it you need to install [numpy](http://www.scipy.org/scipylib/download.html) and [OpenCV](opencv.org/downloads.html). Last time it was tried with Python 3.7.6, but any Python 3 version should work. 
+
+```
+$ pip install SimpleParse
+$ pip install opencv-python
+```
+
+### Run Demo
+
+You can run a demo that generates all images shown in the [Catalogue of Transformations](#a-catalogue-of-transformations)
+by doing:
+
+```
+$ python darko.py
+```
+
+### Run Darko Grammar Test
+
+```
+python -m pytest tests
+```
+
+## A Tutorial of Sorts
+
+Let's apply some transformations on the following picture of scientist/physics-professor/safe-cracker/bongos-player/nobel-laureate extraordinaire [Richard Feynman](https://en.wikipedia.org/wiki/Richard_Feynman).
 
 ![Feynman](docs/images/feynman.jpg)
 
-Getting DigiDark ready and loading the image
+Getting darko ready and loading the image
 
-	import digidark.interpreter
+	import darko.interpreter
 	
 	# Create an interpreter
-	ddi = digidark.interpreter.Interpreter()
+	ddi = darko.interpreter.Interpreter()
 	
 	# Load an image, and reads subpixels with bilinear interpolation
 	ddi.load('feynman.jpg', sampling='bilinear')
@@ -154,6 +179,77 @@ Trinary: cond ? texpr : fexpr
 
 **floor(x)**: Floor
 
-## Catalogue of Transformations
+## A Catalogue of Transformations
 
-See the catalogue of example transformations [here](docs/catalogue.md "Catalogue").
+Most of the following transformations were taken from
+[Beyond Photography: The Digital Darkroom](http://spinroot.com/pico/).
+
+###  Twist
+	new[x, y] = old[rect(r, a - r / 50)]
+![Putin](docs/images/catalogue/putin.jpg "Putin")
+![Putin Twist](docs/images/catalogue/putin-twist.jpg "Putin Twist")
+
+###  Bath
+	new[x, y] = old[x + (x % 32) - 16, y]
+![Merkel](docs/images/catalogue/merkel.jpg "Merkel")
+![Merkel Bath](docs/images/catalogue/merkel-bath.jpg "Merkel Bath")
+
+###  Wave
+	new[x, y] = old[x + 10 * sin(rad(y) * 10), y]
+![Obama](docs/images/catalogue/obama.jpg "Obama")
+![Obama Wave](docs/images/catalogue/obama-wave.jpg "Obama Wave")
+
+### Funhouse
+	new[x, y] = old[x + sin(rad(x)) * 150, y + sin(rad(y * 1.18)) * 89]
+![Jinping](docs/images/catalogue/jinping.jpg "Jinping")
+![Jinping Funhouse](docs/images/catalogue/jinping-funhouse.jpg "Jinping Funhouse")
+
+###  Pond
+	new[x, y] = old[x, y + 10 * sin(rad(y) * 10)]
+![Cameron](docs/images/catalogue/cameron.jpg "Cameron")
+![Cameron Pond](docs/images/catalogue/cameron-pond.jpg "Cameron Pond")
+
+### Negative
+	new[x, y] = Z - old[x, y]
+![Cook](docs/images/catalogue/cook.jpg "Cook")
+![Cook Negative](docs/images/catalogue/cook-negative.jpg "Cook Negative")
+
+###  Spiralbath
+	new[x, y] = old[x, y + (deg(a) + r / 4) % 64 - 16]
+![Gates](docs/images/catalogue/gates.jpg "Gates")
+![Gates Spiralbath](docs/images/catalogue/gates-spiralbath.jpg "Gates Spiralbath")
+
+###  Fisheye
+	new[x, y] = old[rect(1.5 * r ** 2 / R, a)]
+![Bezos](docs/images/catalogue/bezos.jpg "Bezos")
+![Bezos](docs/images/catalogue/bezos-fisheye.jpg "Bezos Fisheye")
+
+###  Caricature
+	new[x, y] = old[rect(0.5 * sqrt(r * R), a)]
+![Page](docs/images/catalogue/page.jpg "Page")
+![Page Caricature](docs/images/catalogue/page-caricature.jpg "Page Caricature")
+
+### Curly
+	new[x, y] = old[x + 10 * sin(rad(y) * 5), y + 10 * sin(rad(x) * 5)]
+![Brin](docs/images/catalogue/brin.jpg "Brin")
+![Brin Curly](docs/images/catalogue/brin-curly.jpg "Brin Curly")
+
+###  Sink
+	new[x, y] = old[rect(r + 10 * sin(rad(r) * 10), a - r / 50)]
+![Ma](docs/images/catalogue/ma.jpg "Ma")
+![Ma Sink](docs/images/catalogue/ma-sink.jpg "Ma Sink")
+
+### T2000
+	new[x, y] = old[rect(1.5 * r ** 2 / R + 10 * sin(rad(r) * 10), a)]
+![Zuckerberg](docs/images/catalogue/zuckerberg.jpg "Zuckerberg")
+![Zuckerberg T2000](docs/images/catalogue/zuckerberg-t2000.jpg "Zuckerberg T2000")
+
+### Pixel
+	new[x, y] = old[floor(x / 10) * 10, floor(y / 10) * 10]
+![Musk](docs/images/catalogue/musk.jpg "Musk")
+![Musk](docs/images/catalogue/musk-pixel.jpg "Musk Pixel")
+
+###  Bentley
+	new[x, y - gray(old[x, y]) * 0.1] = old[x, y]
+![Nadella](docs/images/catalogue/nadella.jpg "Nadella")
+![Nadella Bentley](docs/images/catalogue/nadella-bentley.jpg "Nadella Bentley")

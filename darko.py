@@ -1,4 +1,4 @@
-import digidark.interpreter
+import darko.interpreter
 
 if __name__ == '__main__':
 
@@ -45,14 +45,15 @@ if __name__ == '__main__':
              ('bentley', 'nadella'), ('negative', 'cook'),
              ('curly', 'brin'), ('funhouse', 'jinping')]
 
-    ddi = digidark.interpreter.Interpreter()
+    darko_interpreter = darko.interpreter.Interpreter()
 
     for pair in pairs:
-        print(pair[0] + ": " + transf_src[pair[0]])
+        pathname = 'docs/images/catalogue/'
+        oldfilename = pathname + pair[1] + '.jpg'
+        newfilename = pathname + pair[1] + '-' + pair[0] + '.jpg'
 
-        oldfilename = pair[1] + '.jpg'
-        newfilename = pair[1] + '-' + pair[0] + '.jpg'
+        print(pair[0] + ": " + transf_src[pair[0]] + " -> " + newfilename)
 
-        ddi.load('docs/images/catalogue/' + oldfilename, sampling='bilinear')
-        ddi.eval(transf_src[pair[0]])
-        ddi.save('docs/images/catalogue/' + newfilename, 'new')
+        darko_interpreter.load(oldfilename, sampling='bilinear')
+        darko_interpreter.eval(transf_src[pair[0]])
+        darko_interpreter.save(newfilename, 'new')

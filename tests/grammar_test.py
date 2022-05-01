@@ -2,7 +2,7 @@ import sys
 
 sys.path.append('..')
 
-import digidark.parser as ddp
+import darko.parser as ddp
 
 def test_grammar():
     cases = {
@@ -65,11 +65,11 @@ def test_grammar():
             tsrc = case[0].replace(" ", "")
             success, children, nextchar = parser.parse(tsrc, production=production)
             if (success and nextchar == len(tsrc)) == case[1]:
-                print "Test passed: ", production, tsrc
+                print("Test passed: ", production, tsrc)
             else:
-                print "Test failed: ", production, tsrc, nextchar
-                print tsrc
-                print " " * nextchar, '^'
+                print("Test failed: ", production, tsrc, nextchar)
+                print(tsrc)
+                print(" " * nextchar, '^')
 
 if __name__ == '__main__':
     test_grammar()

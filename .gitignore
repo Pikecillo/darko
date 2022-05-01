@@ -1,0 +1,4 @@
+*.pyc
+darko/*.pyc
+tests/*.pyc
+

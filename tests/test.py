@@ -2,9 +2,9 @@ import sys
 
 sys.path.append('..')
 
-import digidark.interpreter
+import darko.interpreter
 
-ddi = digidark.interpreter.Interpreter()
+ddi = darko.interpreter.Interpreter()
 
 ddi.load('../docs/images/feynman.jpg', sampling='bilinear')
 

@@ -1,4 +1,4 @@
-from digidark.mathf import bilerp
+from darko.mathf import bilerp
 
 import cv2
 import numpy as np
@@ -20,7 +20,7 @@ class Image:
         if self.sampling == 'none':
             x = max(0, min(x, self.width - 1))
             y = max(0, min(y, self.height - 1))
-            return self.pixels[y][x]
+            return self.pixels[int(y)][int(x)]
         else:
             return self.bilerp_sampling(x, y)
 
@@ -29,7 +29,7 @@ class Image:
         x = max(0, min(x, self.width - 1))
         y = max(0, min(y, self.height - 1))
 
-        self.pixels[y][x] = pval
+        self.pixels[int(y)][int(x)] = pval
 
     def bilerp_sampling(self, x, y):
         i0 = int(max(0, min(self.height - 1, y)))
@@ -58,7 +58,7 @@ class Image:
         cv2.imshow(win_name, self.pixels)
 
     def shape(self):
-        if self.pixels == None:
+        if type(self.pixels) == type(None):
             return (0, 0)
 
         return self.pixels.shape[0:-1]
@@ -71,12 +71,12 @@ class Image:
 
         for i in range(height):
             for j in range(width):
-                if self.sampling == 'none':
-                    resized[i][j] = self.pixels[i * sy][j * sx]
+                if sampling == 'none':
+                    resized[i][j] = self.pixels[int(i * sy)][int(j * sx)]
                 else:
                     resized[i][j] = self.bilerp_sampling(j * sx, i * sy)
 
-        return Image(resized, self.sampling)
+        return Image(resized, sampling)
 
     def scaled(self, factor):
         return self.resized(int(self.height * factor),
