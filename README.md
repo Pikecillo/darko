@@ -9,11 +9,11 @@ Have fun distorting some pictures with one-liners, and feel free to contribute t
 
 ## Content
 
-- [How to Run It](#to-use)
+- [How to Run It](#how-to-run-it)
 - [A Tutorial of Sorts](#a-tutorial-of-sorts) 
 - [A Catalogue of Transformations](#a-catalogue-of-transformations) 
 
-## How to Run It?
+## How to Run It
 
 **Darko** is written in Python. To run it you need to install [numpy](http://www.scipy.org/scipylib/download.html) and [OpenCV](opencv.org/downloads.html). Last time it was tried with Python 3.7.6, but any Python 3 version should work. 
 
